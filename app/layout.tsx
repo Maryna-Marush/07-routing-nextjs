@@ -1,17 +1,27 @@
-import css from '../components/Footer/Footer.module.css';
+import React from 'react';
+import TanStackProvider from '@/components/TanStackProvider/TanStackProvider';
+import Header from '@/components/Header/Header';
+import Footer from '@/components/Footer/Footer';
 
-export default function Footer() {
+interface RootLayoutProps {
+  children: React.ReactNode;
+  modal: React.ReactNode;
+}
+
+export default function RootLayout({
+  children,
+  modal,
+}: RootLayoutProps) {
   return (
-    <footer className={css.footer}>
-      <div className={css.content}>
-        <p>© {new Date().getFullYear()} NoteHub. All rights reserved.</p>
-        <div className={css.wrap}>
-          <p>Developer: Your Name</p>
-          <p>
-            Contact us: <a href="mailto:student@notehub.app">student@notehub.app</a>
-          </p>
-        </div>
-      </div>
-    </footer>
+    <html lang="uk">
+      <body>
+        <TanStackProvider>
+          <Header />
+          {children}
+          {modal}
+          <Footer />
+        </TanStackProvider>
+      </body>
+    </html>
   );
 }
