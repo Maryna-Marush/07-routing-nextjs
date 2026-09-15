@@ -15,8 +15,11 @@
     "next": "16.3.5",
     "react": "19.2.8",
     "react-dom": "19.2.8",
+    "react-hot-toast": "^2.6.0",
     "react-paginate": "^8.3.0",
+    "simplelightbox": "^2.14.3",
     "use-debounce": "^10.1.1",
+    "yet-another-react-lightbox": "^3.32.2",
     "yup": "^1.7.1"
   },
   "devDependencies": {
