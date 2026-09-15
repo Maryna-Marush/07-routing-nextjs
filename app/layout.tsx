@@ -1,17 +1,17 @@
-import React from 'react';
+import css from '../components/Footer/Footer.module.css';
 
-interface RootLayoutProps {
-  children: React.ReactNode;
-  modal: React.ReactNode;
-}
-
-export default function RootLayout({ children, modal }: RootLayoutProps) {
+export default function Footer() {
   return (
-    <html lang="uk">
-      <body>
-        {children}
-        {modal}
-      </body>
-    </html>
+    <footer className={css.footer}>
+      <div className={css.content}>
+        <p>© {new Date().getFullYear()} NoteHub. All rights reserved.</p>
+        <div className={css.wrap}>
+          <p>Developer: Your Name</p>
+          <p>
+            Contact us: <a href="mailto:student@notehub.app">student@notehub.app</a>
+          </p>
+        </div>
+      </div>
+    </footer>
   );
 }

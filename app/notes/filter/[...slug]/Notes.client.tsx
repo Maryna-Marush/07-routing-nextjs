@@ -1,8 +1,17 @@
 'use client';
 
+import { useState, ChangeEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useDebounce } from 'use-debounce';
 import { fetchNotes } from '@/lib/api';
-import type { Note } from '@/types/note';
+import { Note } from '@/types/note'; 
+
+import SearchBox from '@/components/SearchBox/SearchBox';
+import Pagination from '@/components/Pagination/Pagination';
+import NoteList from '@/components/NoteList/NoteList';
+import Modal from '@/components/Modal/Modal';
+import NoteForm from '@/components/NoteForm/NoteForm';
+
 import css from './NotesClient.module.css';
 
 interface NotesClientProps {
@@ -10,34 +19,58 @@ interface NotesClientProps {
 }
 
 export default function NotesClient({ tag }: NotesClientProps) {
+  const [page, setPage] = useState<number>(1);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
+  const [debouncedSearch] = useDebounce(searchQuery, 300);
+
+  
+  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    setPage(1);
+  };
+
   const { data, isLoading, isError } = useQuery({
-    queryKey: ['notes', { page: 1, search: '', tag }],
-    queryFn: () => fetchNotes({ page: 1, search: '', tag }),
+    queryKey: ['notes', { page, search: debouncedSearch, tag }],
+    queryFn: () => fetchNotes({ page, search: debouncedSearch, tag }),
   });
 
-  if (isLoading) {
-    return <p>Loading notes...</p>;
-  }
+  const notes: Note[] = data?.notes || [];
+  const totalPages: number = data?.totalPages || 1;
 
-  if (isError) {
-    return <p>Error loading notes.</p>;
-  }
+  const handleOpenModal = () => setIsModalOpen(true);
+  const handleCloseModal = () => setIsModalOpen(false);
 
-  if (!data || data.notes.length === 0) {
-    return <p>No notes found.</p>;
-  }
+ 
+  const handlePageChange = (selectedItem: { selected: number }) => {
+    setPage(selectedItem.selected + 1); 
+  };
 
   return (
     <div className={css.container}>
-      <ul className={css.list}>
-        {data.notes.map((note: Note) => (
-          <li key={note.id} className={css.item}>
-            <h3>{note.title}</h3>
-            <p>{note.content}</p>
-            <span className={css.tag}>{note.tag}</span>
-          </li>
-        ))}
-      </ul>
+      <div className={css.toolbar}>
+        <SearchBox value={searchQuery} onChange={handleSearchChange} />
+        <button type="button" onClick={handleOpenModal} className={css.addButton}>
+          Create Note
+        </button>
+      </div>
+
+     {!isLoading && !isError && <NoteList notes={notes} />}
+
+{totalPages > 1 && (
+  <Pagination
+    pageCount={totalPages}
+    forcePage={page - 1}
+    onPageChange={handlePageChange}
+  />
+)}
+
+{isModalOpen && (
+  <Modal onClose={handleCloseModal}>
+    <NoteForm onClose={handleCloseModal} />
+  </Modal>
+)}
     </div>
   );
 }
