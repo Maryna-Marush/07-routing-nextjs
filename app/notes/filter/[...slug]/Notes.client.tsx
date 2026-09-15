@@ -2,16 +2,8 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { fetchNotes } from '@/lib/api';
+import type { Note } from '@/types/note';
 import css from './NotesClient.module.css';
-
-export interface Note {
-  id: string;
-  title: string;
-  content: string;
-  tag?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
 
 interface NotesClientProps {
   tag: string;
@@ -23,25 +15,29 @@ export default function NotesClient({ tag }: NotesClientProps) {
     queryFn: () => fetchNotes({ page: 1, search: '', tag }),
   });
 
-  if (isLoading) return <p>Loading notes...</p>;
-  if (isError) return <p>Error loading notes.</p>;
+  if (isLoading) {
+    return <p>Loading notes...</p>;
+  }
+
+  if (isError) {
+    return <p>Error loading notes.</p>;
+  }
+
+  if (!data || data.notes.length === 0) {
+    return <p>No notes found.</p>;
+  }
 
   return (
     <div className={css.container}>
-      {data?.notes?.length > 0 ? (
-        <ul className={css.list}>
-          {}
-          {data.notes.map((note: Note) => (
-            <li key={note.id} className={css.item}>
-              <h3>{note.title}</h3>
-              <p>{note.content}</p>
-              {note.tag && <span className={css.tag}>{note.tag}</span>}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>No notes found.</p>
-      )}
+      <ul className={css.list}>
+        {data.notes.map((note: Note) => (
+          <li key={note.id} className={css.item}>
+            <h3>{note.title}</h3>
+            <p>{note.content}</p>
+            <span className={css.tag}>{note.tag}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
